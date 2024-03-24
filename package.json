@@ -1,0 +1,11 @@
+{
+  "name": "mongodb-drivers",
+  "version": "1.0.0",
+  "description": "tutorial for mongoDB Drivers",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "author": "Corina",
+  "license": "ISC"
+}
