@@ -30,17 +30,21 @@ app.get('/books', (req, res) => {
 });
 
 app.get('/books/:id', (req, res) => {
-  db.collection('books')
-    .findOne({ _id: new ObjectId(req.params.id) }) // Correct usage of ObjectId
-    .then((doc) => {
-      if (doc) {
-        res.status(200).json(doc);
-      } else {
-        res.status(404).json({ error: 'Book not found' });
-      }
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).json({ error: 'Could not fetch the document' });
-    });
+  if (ObjectId.isValid(req.params.id)) {
+    db.collection('books')
+      .findOne({ _id: new ObjectId(req.params.id) })
+      .then((doc) => {
+        if (doc) {
+          res.status(200).json(doc);
+        } else {
+          res.status(404).json({ error: 'Book not found' });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ error: 'Could not fetch the document' });
+      });
+  } else {
+    res.status(500).json({ error: "Not a valid Id" })
+  }
 });
