@@ -1,36 +1,46 @@
-const express = require('express')
-const { connectToDb, getDb } = require('./db')
+const express = require('express');
+const { ObjectId } = require('mongodb');
+const { connectToDb, getDb } = require('./db');
 
-// init app & middleware
-const app = express()
+const app = express();
 
-// db connection
-let db
+let db;
 
 connectToDb((err) => {
   if (!err) {
     app.listen(3000, () => {
-      console.log('app listening on port 3000')
-    })
-    db = getDb()
+      console.log('app listening on port 3000');
+    });
+    db = getDb();
   }
-})
+});
 
-
-// routes
 app.get('/books', (req, res) => {
-  // empty array
-  let books = []
-
   db.collection('books')
-    .find()// cursor toArray forEach
+    .find()
     .sort({ author: 1 })
-    // for each singular book found, add it to the books array
-    .forEach(book => books.push(book))
-    .then(() => {
-      res.status(200).json(books)
+    .toArray()
+    .then((books) => {
+      res.status(200).json(books);
     })
-    .catch(() => {
-      res.status(500).json({ error: "Could not fetch the documents" })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: 'Could not fetch the documents' });
+    });
+});
+
+app.get('/books/:id', (req, res) => {
+  db.collection('books')
+    .findOne({ _id: new ObjectId(req.params.id) }) // Correct usage of ObjectId
+    .then((doc) => {
+      if (doc) {
+        res.status(200).json(doc);
+      } else {
+        res.status(404).json({ error: 'Book not found' });
+      }
     })
-})
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: 'Could not fetch the document' });
+    });
+});
