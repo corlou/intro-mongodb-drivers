@@ -3,6 +3,7 @@ const { ObjectId } = require('mongodb');
 const { connectToDb, getDb } = require('./db');
 
 const app = express();
+app.use(express.json());
 
 let db;
 
@@ -48,3 +49,16 @@ app.get('/books/:id', (req, res) => {
     res.status(500).json({ error: "Not a valid Id" })
   }
 });
+
+app.post("/books", (req, res) => {
+  const book = req.body
+
+  db.collection('books')
+    .insertOne(book)
+    .then(result => {
+      res.status(200).json(result)
+    })
+    .catch(err => {
+      res.status(500).json({ err: "Could not create a new document" })
+    })
+})
